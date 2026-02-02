@@ -1,6 +1,6 @@
 #!/bin/python
 """
-  This program replaces testcase details in a Failer yaml input file with
+  This program replaces testcase details in a intermediair yaml input file with
   encoded strings just so they are less obvious so they can be found by
   testing and not by cheating when looking into the yaml file.  
 """
@@ -41,7 +41,7 @@ def read_cases() -> dict:
     fdata = {}
     try:
         # TODO un-hardcode file name
-        with open('failer_date_plain.yaml', 'r', encoding="utf-8") as y_file:
+        with open('intermediair_date_plain.yaml', 'r', encoding="utf-8") as y_file:
             fdata = yam.safe_load(y_file)
     except FileNotFoundError as exception:
         print(f'Exception: {exception}')
@@ -54,7 +54,7 @@ def write_cases(fdata: dict) -> int:
     inner_return_code: int = 0
     try:
         # TODO un-hardcode file name
-        with open('failer_date.yaml', 'w', encoding="utf-8") as yfile:
+        with open('intermediair_date.yaml', 'w', encoding="utf-8") as yfile:
             yam.safe_dump(fdata, yfile)
     except FileNotFoundError as exception:
         print(f'Exception: {exception}')
