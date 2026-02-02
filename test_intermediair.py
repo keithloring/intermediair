@@ -1,7 +1,7 @@
 """ pytest based unit tests for test_<module.py> """
 import subprocess
 import pytest
-import failer
+import intermediair
 
 def main():
     """
@@ -23,7 +23,7 @@ def main():
 def test_clean_string():
     """ Make sure we clean odd characters from strings """
     a_string = "VGhpcyBpcyBhIHRlc3Q="
-    a_clean_string = failer.clean_string(a_string)
+    a_clean_string = intermediair.clean_string(a_string)
     assert a_clean_string == 'This is a test'
 
 def test_match_case():
@@ -31,10 +31,10 @@ def test_match_case():
     faildict = {'cases': [{'in': 'aW4x', 'out': 'o1', 'err': 'e1', 'rc': 100},
                           {'in': 'aW4y', 'out': 'o2', 'err': 'e2', 'rc': 220},
                           {'in': 'aW4z', 'out': '03', 'err': 'e3', 'rc': 253}]}
-    assert failer.match_case(faildict, 'in1') == 0
-    assert failer.match_case(faildict, 'in2') == 1
-    assert failer.match_case(faildict, 'in3') == 2
-    assert failer.match_case(faildict, 'in4') is None
+    assert intermediair.match_case(faildict, 'in1') == 0
+    assert intermediair.match_case(faildict, 'in2') == 1
+    assert intermediair.match_case(faildict, 'in3') == 2
+    assert intermediair.match_case(faildict, 'in4') is None
 
 def test_print_result():
     """
@@ -43,15 +43,16 @@ def test_print_result():
        prompt for pytest mock of stdour & stderr:
            https://share.google/aimode/wtmX7fIa3aaxGTRB4
        
-       nothing = failer.print_result('content of stdout', 'content of stderr')
+       nothing = intermediair.print_result('content of stdout',
+                                           'content of stderr')
        assert nothing is None
     """
 
 def test_process_args():
     """ exercise argment processing """
-    arg_list = failer.process_args(['failer.py'])
+    arg_list = intermediair.process_args(['intermediair.py'])
     assert isinstance(arg_list, list)
-    arg_list = failer.process_args(['one', 'two', 'three'])
+    arg_list = intermediair.process_args(['one', 'two', 'three'])
     assert isinstance(arg_list, list)
     assert len(arg_list) == 3
     assert arg_list
@@ -59,7 +60,7 @@ def test_process_args():
 def test_run():
     """ here we could run real or fake depending on inputs """
     try:
-        completed_process = failer.run(['date', '-d', '20260323'])
+        completed_process = intermediair.run(['date', '-d', '20260323'])
     except subprocess.CalledProcessError as exception:
         assert exception is False
     assert isinstance(completed_process, subprocess.CompletedProcess)
@@ -70,15 +71,16 @@ def test_run():
 
 def test_run_fake():
     """ check that we fake output as expected when input DOES match a case """
-    fakedata: dict = {'cases': [{'err': 'aW4y',
-                                 'in': 'ZGF0ZSAtZCAyMDAwMDEwMQ==',
-                                 'out': 'VGh1IEphbiAxIDEyOjAwOjAwIEFNIEVTVCAyMDAw',
-                                 'rc': 123}]}
-    return_code = failer.run_fake(fakedata, 0)
+    fakedata: dict = {'cases':
+                      [{'err': 'aW4y',
+                        'in': 'ZGF0ZSAtZCAyMDAwMDEwMQ==',
+                        'out': 'VGh1IEphbiAxIDEyOjAwOjAwIEFNIEVTVCAyMDAw',
+                        'rc': 123}]}
+    return_code = intermediair.run_fake(fakedata, 0)
     assert return_code == 123
 
 def test_run_real():
-    """ check that we run as expeted when yaml has no cases matching the inputs """
+    """ check that we run ok when yaml has no cases matching the inputs """
 
 
 if __name__ == '__main__':

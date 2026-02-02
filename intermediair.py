@@ -78,7 +78,7 @@ def process_args(pass_args: list[str]) -> list[str]:
         print(f'ERROR: {pass_args[0]} is not executable', file=sys.stderr)
         sys.exit(3)
     pcrocessed_args = pass_args[1:]
-    # TODO - handle any Failer app specific args, then pass the rest
+    # TODO - handle any intermediair app specific args, then pass the rest
     # TODO - through to article under test
     return pcrocessed_args
 
@@ -99,7 +99,7 @@ def read_cases(cases_file_name: str) -> dict:
 def run(app_with_args: list) -> subprocess.CompletedProcess | None:
     """
         A wrapper for subprocess.run() to execute the 'app' or program
-        being faked by Failer.  When none of the cases in failer yaml
+        being faked by intermediair.  When none of the cases in intermediair yaml
         are mathced for faking, we run the app 'for real' and pass the
         results to stdout, stderr, return_code just as the app would normally do
     """
@@ -134,7 +134,7 @@ def run_fake(faildata: dict[str, list[dict]], matched: int) -> int:
 
 def run_real(passargs: list) -> int:
     """
-        We found no matching fake fail case so Failer should just run
+        We found no matching fake fail case so intermediair should just run
         the "real" script/app/program and pass through the outputs
     """
     result = run(passargs)
