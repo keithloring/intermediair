@@ -26,7 +26,7 @@ def main() -> int:
     """
     passargs = process_args(sys.argv)
     faildata_filename = Path(f'{sys.argv[0]}').stem
-    faildata = read_cases(f'{faildata_filename}_{passargs[0]}.yaml')
+    faildata = read_cases(Path(f'{faildata_filename}_{passargs[0]}.yaml'))
     matched = match_case(faildata, ' '.join(passargs))
     return_code = 0
     if matched is None:   # no mathes in filedata, run normally
@@ -82,7 +82,7 @@ def process_args(pass_args: list[str]) -> list[str]:
     # TODO - through to article under test
     return pcrocessed_args
 
-def read_cases(cases_file_name: str) -> dict:
+def read_cases(cases_file_name: Path) -> dict:
     """
         Read the yaml file with all the cases that we should fake a failure for,
         and the details to be faked e.g. stdout, stderr and return value or exit
@@ -90,7 +90,7 @@ def read_cases(cases_file_name: str) -> dict:
     """
     fdata: dict = {}
     try:
-        with open(cases_file_name, 'r', encoding="utf-8") as y_file:
+        with cases_file_name.open('r', encoding="utf-8") as y_file:
             fdata = yam.safe_load(y_file)
     except FileNotFoundError as exception:
         print(f'Exception: {exception}', file=sys.stderr)

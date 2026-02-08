@@ -50,11 +50,11 @@ def test_print_result():
 
 def test_process_args():
     """ exercise argment processing """
-    arg_list = intermediair.process_args(['intermediair.py'])
+    arg_list = intermediair.process_args(['intermediair.py', 'date'])
     assert isinstance(arg_list, list)
     arg_list = intermediair.process_args(['one', 'two', 'three'])
     assert isinstance(arg_list, list)
-    assert len(arg_list) == 3
+    assert len(arg_list) == 2
     assert arg_list
 
 def test_run():

@@ -6,6 +6,7 @@
 """
 import base64
 import sys
+from pathlib import Path
 import yaml as yam
 
 def encode_string(a_string: str) -> str:
@@ -34,33 +35,32 @@ def check_cases(cases: dict) -> dict:
         cases['cases'][index] = a_case
     return cases
 
-def read_cases() -> dict:
+def read_cases(fake_yam: Path) -> dict:
     """
         Read the yaml file containing all the testcases with fake results
     """
-    fdata = {}
+    fdata: dict = {}
     try:
-        # TODO un-hardcode file name
-        with open('intermediair_date_plain.yaml', 'r', encoding="utf-8") as y_file:
+        with fake_yam.open('r', encoding="utf-8") as y_file:
             fdata = yam.safe_load(y_file)
     except FileNotFoundError as exception:
         print(f'Exception: {exception}')
     return fdata
 
-def write_cases(fdata: dict) -> int:
+def write_cases(fake_yam: Path, fdata: dict) -> int:
     """
         Write the yaml of testcases
     """
     inner_return_code: int = 0
     try:
-        # TODO un-hardcode file name
-        with open('intermediair_date.yaml', 'w', encoding="utf-8") as yfile:
-            yam.safe_dump(fdata, yfile)
+        with fake_yam.open('w', encoding="utf-8") as y_file:
+            yam.safe_dump(fdata, y_file)
     except FileNotFoundError as exception:
         print(f'Exception: {exception}')
         inner_return_code = 1
     return inner_return_code
 
 if __name__ == '__main__':
-    return_code: int = write_cases(check_cases(read_cases()))
+    return_code: int = write_cases(Path('intermediair_date.yaml'),
+                                   check_cases(read_cases(Path('intermediair_date_plain.yaml'))))
     sys.exit(return_code)
