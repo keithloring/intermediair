@@ -26,7 +26,7 @@ def main() -> int:
     """
     passargs = process_args(sys.argv)
     faildata_filename = Path(f'{sys.argv[0]}').stem
-    faildata = read_cases(f'{faildata_filename}_{passargs[0]}.yaml')
+    faildata = read_cases(Path(f'{faildata_filename}_{passargs[0]}.yaml'))
     matched = match_case(faildata, ' '.join(passargs))
     return_code = 0
     if matched is None:   # no mathes in filedata, run normally
@@ -45,7 +45,7 @@ def clean_string(a_string: str) -> str:
         a_string = base64.b64decode(a_string.encode('ascii')).decode('utf-8')
     return a_string
 
-def match_case(fdata: dict, jargs: str) -> int | Optional[int]:
+def match_case(fdata: dict[str, list[dict[str, str]]], jargs: str) -> int | Optional[int]:
     """
         Given the input dictionary which has a 'cases' entry that
         contains a list of dictionaries, find a list entry where the
@@ -53,10 +53,10 @@ def match_case(fdata: dict, jargs: str) -> int | Optional[int]:
         the index of the list of cases as a match
     """
     match_index = next((i for i, c in enumerate(fdata['cases'])
-                    if clean_string(c['in']) == jargs), None)
+                    if clean_string(str(c['in'])) == jargs), None)
     return match_index
 
-def print_result(out: str, err: str):
+def print_result(out: str, err: str) -> None:
     """
         Send the output to stdout and errors to stderr
     """
@@ -82,21 +82,21 @@ def process_args(pass_args: list[str]) -> list[str]:
     # TODO - through to article under test
     return pcrocessed_args
 
-def read_cases(cases_file_name: str) -> dict:
+def read_cases(cases_file_name: Path) -> dict[str, list[dict[str, str]]]:
     """
         Read the yaml file with all the cases that we should fake a failure for,
         and the details to be faked e.g. stdout, stderr and return value or exit
         code
     """
-    fdata: dict = {}
+    fdata: dict[str, list[dict[str, str]]]
     try:
-        with open(cases_file_name, 'r', encoding="utf-8") as y_file:
+        with cases_file_name.open('r', encoding="utf-8") as y_file:
             fdata = yam.safe_load(y_file)
     except FileNotFoundError as exception:
         print(f'Exception: {exception}', file=sys.stderr)
     return fdata
 
-def run(app_with_args: list) -> subprocess.CompletedProcess | None:
+def run(app_with_args: list[str]) -> subprocess.CompletedProcess[str] | None:
     """
         A wrapper for subprocess.run() to execute the 'app' or program
         being faked by intermediair.  When none of the cases in intermediair yaml
@@ -112,15 +112,14 @@ def run(app_with_args: list) -> subprocess.CompletedProcess | None:
     except FileNotFoundError:
         print('ERROR: Command not found or executable not in PATH:', end=' ')
         print(f'{app_with_args[0]}', file=sys.stderr)
-        return None
     except subprocess.CalledProcessError as exception:
         print(f'ERROR: Command failed with exit code {exception.returncode}',
               file=sys.stderr)
         print(f'STDOUT: [{exception.stdout}]', file=sys.stderr)
         print(f'STDERR: [{exception.stderr}]', file=sys.stderr)
-        return None
+    return None
 
-def run_fake(faildata: dict[str, list[dict]], matched: int) -> int:
+def run_fake(faildata: dict[str, list[dict[str, str]]], matched: int) -> int:
     """
         We found a matching fake fail case so DON'T run "for real"
         but just pretend to run by printing the fake stdout and fake
@@ -128,11 +127,11 @@ def run_fake(faildata: dict[str, list[dict]], matched: int) -> int:
     """
     fake_stdout = clean_string(faildata['cases'][matched]['out'])
     fake_stderr = clean_string(faildata['cases'][matched]['err'])
-    fake_return_code = faildata['cases'][matched]['rc']
+    fake_return_code = int(faildata['cases'][matched]['rc'])
     print_result(fake_stdout, fake_stderr)
     return fake_return_code
 
-def run_real(passargs: list) -> int:
+def run_real(passargs: list[str]) -> int:
     """
         We found no matching fake fail case so intermediair should just run
         the "real" script/app/program and pass through the outputs

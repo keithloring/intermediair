@@ -3,7 +3,7 @@ import subprocess
 import pytest
 import intermediair
 
-def main():
+def main() -> None:
     """
         This main() is only here to overcome the "limitation" that Thonny IDE
         "cannot debug pytest".  With this and the "if __name__ == '__main__':"
@@ -20,23 +20,23 @@ def main():
     test_run_fake()
     test_run_real()
 
-def test_clean_string():
+def test_clean_string() -> None:
     """ Make sure we clean odd characters from strings """
     a_string = "VGhpcyBpcyBhIHRlc3Q="
     a_clean_string = intermediair.clean_string(a_string)
     assert a_clean_string == 'This is a test'
 
-def test_match_case():
+def test_match_case() -> None:
     """ exercise the matching of input to cases in the yaml file """
-    faildict = {'cases': [{'in': 'aW4x', 'out': 'o1', 'err': 'e1', 'rc': 100},
-                          {'in': 'aW4y', 'out': 'o2', 'err': 'e2', 'rc': 220},
-                          {'in': 'aW4z', 'out': '03', 'err': 'e3', 'rc': 253}]}
+    faildict = {'cases': [{'in': 'aW4x', 'out': 'o1', 'err': 'e1', 'rc': '100'},
+                          {'in': 'aW4y', 'out': 'o2', 'err': 'e2', 'rc': '220'},
+                          {'in': 'aW4z', 'out': '03', 'err': 'e3', 'rc': '253'}]}
     assert intermediair.match_case(faildict, 'in1') == 0
     assert intermediair.match_case(faildict, 'in2') == 1
     assert intermediair.match_case(faildict, 'in3') == 2
     assert intermediair.match_case(faildict, 'in4') is None
 
-def test_print_result():
+def test_print_result() -> None:
     """
        the first arg gets printed to stdout, the second to stderr
        
@@ -48,38 +48,35 @@ def test_print_result():
        assert nothing is None
     """
 
-def test_process_args():
+def test_process_args() -> None:
     """ exercise argment processing """
-    arg_list = intermediair.process_args(['intermediair.py'])
+    arg_list = intermediair.process_args(['intermediair.py', 'date'])
     assert isinstance(arg_list, list)
     arg_list = intermediair.process_args(['one', 'two', 'three'])
     assert isinstance(arg_list, list)
-    assert len(arg_list) == 3
+    assert len(arg_list) == 2
     assert arg_list
 
-def test_run():
+def test_run() -> None:
     """ here we could run real or fake depending on inputs """
-    try:
-        completed_process = intermediair.run(['date', '-d', '20260323'])
-    except subprocess.CalledProcessError as exception:
-        assert exception is False
+    completed_process = intermediair.run(['date', '-d', '20260323'])
     assert isinstance(completed_process, subprocess.CompletedProcess)
     assert completed_process.args == ['date', '-d', '20260323']
     assert completed_process.stdout == 'Mon Mar 23 12:00:00 AM EDT 2026\n'
     assert completed_process.stderr == ''
     assert completed_process.returncode == 0
 
-def test_run_fake():
+def test_run_fake() -> None:
     """ check that we fake output as expected when input DOES match a case """
-    fakedata: dict = {'cases':
-                      [{'err': 'aW4y',
-                        'in': 'ZGF0ZSAtZCAyMDAwMDEwMQ==',
-                        'out': 'VGh1IEphbiAxIDEyOjAwOjAwIEFNIEVTVCAyMDAw',
-                        'rc': 123}]}
+    fakedata: dict[str, list[dict[str, str]]]
+    fakedata = {'cases': [{'err': 'aW4y',
+                           'in': 'ZGF0ZSAtZCAyMDAwMDEwMQ==',
+                           'out': 'VGh1IEphbiAxIDEyOjAwOjAwIEFNIEVTVCAyMDAw',
+                           'rc': '123'}]}
     return_code = intermediair.run_fake(fakedata, 0)
     assert return_code == 123
 
-def test_run_real():
+def test_run_real() -> None:
     """ check that we run ok when yaml has no cases matching the inputs """
 
 

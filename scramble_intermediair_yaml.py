@@ -6,6 +6,7 @@
 """
 import base64
 import sys
+from pathlib import Path
 import yaml as yam
 
 def encode_string(a_string: str) -> str:
@@ -24,43 +25,42 @@ def decode_string(a_string: str) -> str:
         a_string = base64.b64decode(a_string.encode('ascii')).decode('utf-8')
     return a_string
 
-def check_cases(cases: dict) -> dict:
+def check_cases(cases: dict[str, list[dict[str, str]]]) -> dict[str, list[dict[str, str]]]:
     """
         Iterate the fields in each testcase in dictionary to encode
     """
     for index, a_case in enumerate(cases['cases']):
         for key, value in a_case.items():
-            a_case[key] = encode_string(value)
+            a_case[key] = encode_string(str(value))
         cases['cases'][index] = a_case
     return cases
 
-def read_cases() -> dict:
+def read_cases(fake_yam: Path) -> dict[str, list[dict[str, str]]]:
     """
         Read the yaml file containing all the testcases with fake results
     """
-    fdata = {}
+    fdata: dict[str, list[dict[str, str]]]
     try:
-        # TODO un-hardcode file name
-        with open('intermediair_date_plain.yaml', 'r', encoding="utf-8") as y_file:
+        with fake_yam.open('r', encoding="utf-8") as y_file:
             fdata = yam.safe_load(y_file)
     except FileNotFoundError as exception:
         print(f'Exception: {exception}')
     return fdata
 
-def write_cases(fdata: dict) -> int:
+def write_cases(fake_yam: Path, fdata: dict[str, list[dict[str, str]]]) -> int:
     """
         Write the yaml of testcases
     """
     inner_return_code: int = 0
     try:
-        # TODO un-hardcode file name
-        with open('intermediair_date.yaml', 'w', encoding="utf-8") as yfile:
-            yam.safe_dump(fdata, yfile)
+        with fake_yam.open('w', encoding="utf-8") as y_file:
+            yam.safe_dump(fdata, y_file)
     except FileNotFoundError as exception:
         print(f'Exception: {exception}')
         inner_return_code = 1
     return inner_return_code
 
 if __name__ == '__main__':
-    return_code: int = write_cases(check_cases(read_cases()))
+    return_code: int = write_cases(Path('intermediair_date.yaml'),
+                                   check_cases(read_cases(Path('intermediair_date_plain.yaml'))))
     sys.exit(return_code)
