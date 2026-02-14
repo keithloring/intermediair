@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# IDE Pycharm etc
+.idea/
+.thonny/
+
+# Pytest and Testing
+.pytest_cache/
+
+# Custom Output Directories
+*plain*

@@ -25,21 +25,21 @@ def decode_string(a_string: str) -> str:
         a_string = base64.b64decode(a_string.encode('ascii')).decode('utf-8')
     return a_string
 
-def check_cases(cases: dict) -> dict:
+def check_cases(cases: dict[str, list[dict[str, str]]]) -> dict[str, list[dict[str, str]]]:
     """
         Iterate the fields in each testcase in dictionary to encode
     """
     for index, a_case in enumerate(cases['cases']):
         for key, value in a_case.items():
-            a_case[key] = encode_string(value)
+            a_case[key] = encode_string(str(value))
         cases['cases'][index] = a_case
     return cases
 
-def read_cases(fake_yam: Path) -> dict:
+def read_cases(fake_yam: Path) -> dict[str, list[dict[str, str]]]:
     """
         Read the yaml file containing all the testcases with fake results
     """
-    fdata: dict = {}
+    fdata: dict[str, list[dict[str, str]]]
     try:
         with fake_yam.open('r', encoding="utf-8") as y_file:
             fdata = yam.safe_load(y_file)
@@ -47,7 +47,7 @@ def read_cases(fake_yam: Path) -> dict:
         print(f'Exception: {exception}')
     return fdata
 
-def write_cases(fake_yam: Path, fdata: dict) -> int:
+def write_cases(fake_yam: Path, fdata: dict[str, list[dict[str, str]]]) -> int:
     """
         Write the yaml of testcases
     """
